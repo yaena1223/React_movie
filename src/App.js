@@ -1,25 +1,49 @@
-import logo from './logo.svg';
-import './App.css';
 
-function App() {
+import React, { useEffect } from 'react';
+import {useState} from "react";
+import Movie from "./Movie"
+import PropTypes from "prop-types"
+
+
+function App(){
+  const [loading, setLoading]  = useState(true);
+  const [movies, setMovies] = useState([])
+  const getMovies = async() => {
+    const json = await(
+      await fetch(
+      "https://yts.mx/api/v2/list_movies.json?minimum_rating=8.8&sort_by=year"
+      )).json();
+
+    setMovies(json.data.movies);
+    setLoading(false);
+    
+  }
+  useEffect(()=>{
+    getMovies();
+  },[]);
+  console.log(movies)
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1> Movies </h1>
+      {loading?<h1>loading...</h1>:
+      <div>
+        {movies.map((movie)=>
+          <Movie 
+            key = {movie.id}
+            coverImg={movie.medium_cover_image} title = {movie.title} summary = {movie.summary} genres={movie.genres} rating = {movie.rating}/>
+            
+        )}
+      </div>}
+      
     </div>
-  );
+  )
 }
 
+Movie.propTypes = {
+  covImg : PropTypes.string.isRequired,
+  title : PropTypes.string.isRequired,
+  summary : PropTypes.string.isRequired,
+  genres : PropTypes.arrayOf(PropTypes.string).isRequired
+
+}
 export default App;
